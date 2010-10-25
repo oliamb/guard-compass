@@ -4,21 +4,22 @@ Let you configure a Guard that will run compass whenever a stylesheet is updated
 
 h2. Quick Start
 
-  $ (sudo) gem install compass
-  $ compass -f blueprint my_compass_project
-  $ cd my_compass_project
-  $ bundle init
+bc. $ (sudo) gem install compass
+$ compass -f blueprint my_compass_project
+$ cd my_compass_project
+$ bundle init
 
 Then, edit the Gemfile for it to looks like:
 
-  source "http://rubygems.org"
+bc. source "http://rubygems.org"
+gem 'guard-compass'
 
-  gem 'guard-compass'
+You can now download missing gems and initialize the guard
 
-  $ bundle install
-  $ guard init
-  $ guard init compass
-  $ guard
+bc. $ bundle install
+$ guard init
+$ guard init compass
+$ guard
 
 Your scss(or sass) stylesheets are now guarded.
 
