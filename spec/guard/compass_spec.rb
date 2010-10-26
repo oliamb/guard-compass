@@ -12,7 +12,7 @@ describe Guard::Compass do
   describe "start" do
     it "supports creation of the updater instance" do
       subject.updater.should be_nil
-      subject.start
+      subject.start.should be_true
       subject.updater.should_not be_nil
     end
     
@@ -23,8 +23,8 @@ describe Guard::Compass do
   
   describe "default options" do
     it "should have a default path mathching the run location" do
-      subject.options[:path].should == File.expand_path(".")
-      subject.start
+      subject.options[:workdir].should == File.expand_path(".")
+      subject.start.should be_true
     end
   end
   
@@ -34,7 +34,7 @@ describe Guard::Compass do
       FileUtils.mkdir(TMP_PATH) if ! File.exists? TMP_PATH
       @project_path = TMP_PATH + '/compass_prj'
       FileUtils.cp_r FIXTURES_PATH + '/compass_prj', TMP_PATH
-      subject.options.merge!(:path => @project_path)
+      subject.options.merge!(:workdir => @project_path)
       
       subject.start
     end
@@ -47,7 +47,7 @@ describe Guard::Compass do
     describe "stop" do
       it "Stop remove the updater" do
         subject.updater.should_not be_nil
-        subject.stop
+        subject.stop.should be_true
         subject.updater.should be_nil
       end
     end
@@ -56,7 +56,7 @@ describe Guard::Compass do
       it "rebuilds all scss files in compass path" do
         File.exists?(@project_path + "/src/screen.scss").should(be_true)
         File.exists?(@project_path + "/stylesheets/screen.css").should be_false
-        subject.run_on_change(@project_path + "/src/screen.scss")
+        subject.run_on_change(@project_path + "/src/screen.scss").should be_true
         File.exists?(@project_path + "/stylesheets/screen.css").should be_true
       end
     end
@@ -65,7 +65,7 @@ describe Guard::Compass do
       it "rebuilds all scss files in compass path" do
         File.exists?(@project_path + "/src/screen.scss").should(be_true)
         File.exists?(@project_path + "/stylesheets/screen.css").should be_false
-        subject.run_all
+        subject.run_all.should be_true
         File.exists?(@project_path + "/stylesheets/screen.css").should be_true
       end
     end
