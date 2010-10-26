@@ -21,18 +21,16 @@ module Guard
     
     # Compile all the sass|scss stylesheets
     def start
-      super
       create_updater
+      UI.info "Guard::Compass is watching at your stylesheets."
     end
     
     def stop
-      super
       @updater = nil
     end
     
     # Reload the configuration
     def reload
-      super
       create_updater
     end
     
