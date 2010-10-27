@@ -23,3 +23,13 @@ $ guard
 
 Your scss(or sass) stylesheets are now guarded.
 
+h2. Roadmap
+
+h3. 0.1.0
+
+* Implements notifications
+* Create a watch rule based on the compass config file
+
+h3. 0.1.1
+
+* Detect rails install and generate watcher accordingly 
