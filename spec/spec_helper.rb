@@ -1,6 +1,7 @@
 require 'spec_helper'
 
-FIXTURES_PATH = File.expand_path(File.dirname(__FILE__) + '/fixtures')
+FIXTURES_PATH = Pathname.new(File.expand_path('../fixtures/', __FILE__))
+LIB_PATH = Pathname.new(File.expand_path('../../lib/', __FILE__))
 TMP_PATH = File.expand_path(File.dirname(__FILE__) + '/tmp_files')
 
 RSpec.configure do |config|
@@ -10,7 +11,5 @@ RSpec.configure do |config|
   
   config.before(:each) do
     ENV["GUARD_ENV"] = 'test'
-    @fixture_path = Pathname.new(File.expand_path('../fixtures/', __FILE__))
-    @lib_path = Pathname.new(File.expand_path('../../lib/', __FILE__))
   end
 end
