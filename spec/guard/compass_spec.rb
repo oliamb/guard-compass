@@ -163,6 +163,27 @@ describe Guard::Compass do
     end
   end
   
+  describe "with a bad configuration file parameter" do
+    subject { Guard::Compass.new([], :configuration_file => 'invalid.rb') }
+    
+    before :each do
+      create_fixture(:custom_config_file)
+    end
+    
+    after :each do
+      subject.stop
+      remove_fixtures
+    end
+    
+    it "reports an error" do
+      subject.options[:configuration_file].should == 'invalid.rb'
+      subject.reporter.stub!(:failure)
+      subject.reporter.should_receive(:failure).with("Compass configuration file not found: #{@project_path}/invalid.rb\nPlease check Guard configuration.")
+      subject.start
+    end
+  
+  end
+  
 private
   def create_fixture(name)
     FileUtils.mkdir(TMP_PATH) if ! File.exists? TMP_PATH

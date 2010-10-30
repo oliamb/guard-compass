@@ -69,7 +69,7 @@ module Guard
             ::Compass.add_configuration filepath
             options[:configuration_file] = filepath
           else
-            reporter.failure "Cannot find the Compass configuration file: " + filepath + "\nPlease check your configuration."
+            reporter.failure "Compass configuration file not found: " + filepath + "\nPlease check Guard configuration."
           end
         end
         @updater = ::Compass::Commands::UpdateProject.new(@options[:workdir] , @options)
