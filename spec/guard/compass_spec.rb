@@ -6,7 +6,7 @@ def create_fixture(name)
   FileUtils.mkdir(TMP_PATH) if ! File.exists? TMP_PATH
   @project_path = "#{TMP_PATH}/#{name}"
   FileUtils.cp_r "#{FIXTURES_PATH}/#{name}", TMP_PATH
-  subject.options.merge!(:workdir => @project_path)
+  subject.options.merge!(:working_directory => @project_path)
 end
 
 def remove_fixtures
@@ -27,8 +27,8 @@ describe Guard::Compass do
     end
 
     it "might be initialized with options" do
-      g = Guard::Compass.new([], :workdir => 'test', :configuration_file => 'test_also')
-      g.options[:workdir].should == 'test'
+      g = Guard::Compass.new([], :working_directory => 'test', :configuration_file => 'test_also')
+      g.options[:working_directory].should == 'test'
       g.options[:configuration_file].should == 'test_also'
     end
     
@@ -55,7 +55,7 @@ describe Guard::Compass do
   
     describe "default options" do
       it "should have a default path mathching the run location" do
-        subject.options[:workdir].should == @project_path
+        subject.options[:working_directory].should == @project_path
         subject.start.should be_true
       end
     end
@@ -131,7 +131,7 @@ describe Guard::Compass do
     
     it "configure Compass correctly with a path relative to the workdir" do
       subject.options[:configuration_file] = "another_config_location/config.rb"
-      subject.options[:workdir] = @project_path
+      subject.options[:working_directory] = @project_path
       subject.start
     end
     
@@ -224,7 +224,7 @@ describe Guard::Compass do
     
     describe "in standard project" do
       subject { 
-        Guard::Compass.new([], :workdir => "#{TMP_PATH}/compass_prj") 
+        Guard::Compass.new 
       }
 
       before :each do
@@ -232,7 +232,7 @@ describe Guard::Compass do
       end
 
       it "should have some watchers" do
-        subject.options.should eql :workdir => "#{TMP_PATH}/compass_prj"
+        subject.options.should eql :working_directory => "#{TMP_PATH}/compass_prj"
         subject.start
         subject.watchers.size.should(eql(2), subject.watchers.inspect)
         subject.watchers.first.pattern.should == "^src/.*"
@@ -242,7 +242,7 @@ describe Guard::Compass do
     
     describe "in customized project" do
       subject { 
-        Guard::Compass.new([], :workdir => "#{TMP_PATH}/custom_config_file", :configuration_file => 'another_config_location/config.rb') 
+        Guard::Compass.new([], :working_directory => "#{TMP_PATH}/custom_config_file", :configuration_file => 'another_config_location/config.rb') 
       }
 
       before :each do
@@ -263,7 +263,7 @@ def create_fixture(name)
   FileUtils.mkdir(TMP_PATH) if ! File.exists? TMP_PATH
   @project_path = "#{TMP_PATH}/#{name}"
   FileUtils.cp_r "#{FIXTURES_PATH}/#{name}", TMP_PATH
-  subject.options.merge!(:workdir => @project_path)
+  subject.options.merge!(:working_directory => @project_path)
   
   Dir.stub!(:pwd).and_return(@project_path)
   Pathname.stub!(:pwd).and_return(Pathname.new(@project_path))

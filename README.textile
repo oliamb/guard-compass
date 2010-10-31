@@ -33,7 +33,7 @@ end
 
 the compass guard accept two options:
 
- * :workdir: all compass relative path will be computed from there
+ * :working_directory: all compass relative path will be computed from there
  * :configuration_file: relative or absolute path to your compass configuration file
 
 By default, the working directory is the folder where you run guard in and

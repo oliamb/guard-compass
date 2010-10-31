@@ -17,7 +17,7 @@ module Guard
     def initialize(watchers = [], options = {})
       super
       @reporter = Reporter.new
-      @options[:workdir] ||= File.expand_path(File.dirname("."))
+      @options[:working_directory] ||= File.expand_path(File.dirname("."))
     end
     
     # Guard Interface Implementation
@@ -63,22 +63,22 @@ module Guard
       end
       
       def create_updater
-        @updater = ::Compass::Commands::UpdateProject.new(@options[:workdir] , @options)
+        @updater = ::Compass::Commands::UpdateProject.new(@options[:working_directory] , @options)
         valid_sass_path?
       end
       
       def load_compass_configuration
         ::Compass.default_configuration
-        config_file = (options[:configuration_file] || ::Compass.detect_configuration_file(options[:workdir]))
+        config_file = (options[:configuration_file] || ::Compass.detect_configuration_file(options[:working_directory]))
         unless(config_file.nil?)
           filepath = Pathname.new(config_file)
           if(filepath.relative?)
-            filepath = Pathname.new([options[:workdir], config_file].join("/"))
+            filepath = Pathname.new([options[:working_directory], config_file].join("/"))
           end
           if(filepath.exist?)
             ::Compass.add_configuration filepath
             options[:configuration_file] = filepath.to_s
-            src_path = Pathname.new( File.expand_path(::Compass.configuration.sass_dir, options[:workdir]) ).relative_path_from(Pathname.pwd)
+            src_path = Pathname.new( File.expand_path(::Compass.configuration.sass_dir, options[:working_directory]) ).relative_path_from(Pathname.pwd)
             watchers.clear
             watchers.push Watcher.new("^#{src_path}/.*")
             watchers.push Watcher.new("^#{filepath.relative_path_from(Pathname.pwd)}$")
@@ -93,7 +93,7 @@ module Guard
       def valid_sass_path?
         path = Pathname.new(::Compass.configuration.sass_dir)
         if(path.relative?)
-          path = Pathname.new(@options[:workdir]) + path
+          path = Pathname.new(@options[:working_directory]) + path
         end
         unless path.exist?
           reporter.failure("Sass files src directory not found: #{::Compass.configuration.sass_path}\nPlease check your Compass configuration.")
