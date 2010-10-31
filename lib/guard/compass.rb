@@ -1,5 +1,6 @@
 require 'guard'
 require 'guard/guard'
+require 'guard/watcher'
 require 'guard/reporter'
 
 require 'compass'
@@ -23,8 +24,9 @@ module Guard
     
     # Compile all the sass|scss stylesheets
     def start
-      create_updater
       UI.info "Guard::Compass is watching at your stylesheets."
+      load_compass_configuration
+      create_updater
       true
     end
     
@@ -35,6 +37,7 @@ module Guard
     
     # Reload the configuration
     def reload
+      load_compass_configuration
       create_updater
       true
     end
@@ -59,7 +62,8 @@ module Guard
         end
       end
       
-      def create_updater
+      def load_compass_configuration
+        ::Compass.default_configuration
         if(options[:configuration_file])
           filepath = Pathname.new(options[:configuration_file])
           if(filepath.relative?)
@@ -72,6 +76,18 @@ module Guard
             reporter.failure "Compass configuration file not found: " + filepath + "\nPlease check Guard configuration."
           end
         end
+        
+        ::Compass.configuration.sass_dir ||= "#{options[:workdir]}/src"
+        watchers.clear
+        watchers.push Watcher.new("^#{ File.expand_path(::Compass.configuration.sass_dir, options[:workdir]) }/.*")
+        if(options[:configuration_file])
+          watchers.push Watcher.new("^#{options[:configuration_file]}$")
+        elsif conf_file = ::Compass.detect_configuration_file(options[:workdir])
+          watchers.push Watcher.new("^#{conf_file}$")
+        end
+      end
+      
+      def create_updater
         @updater = ::Compass::Commands::UpdateProject.new(@options[:workdir] , @options)
         valid_sass_path?
       end
