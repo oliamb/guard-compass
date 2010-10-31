@@ -111,7 +111,9 @@ describe Guard::Compass do
     subject { Guard::Compass.new }
     
     before :each do
+      ::Compass.reset_configuration!
       create_fixture(:custom_config_file)
+      subject.reporter.should_not_receive(:failure)
     end
   
     after :each do
@@ -129,6 +131,7 @@ describe Guard::Compass do
     
     it "configure Compass correctly with a path relative to the workdir" do
       subject.options[:configuration_file] = "another_config_location/config.rb"
+      subject.options[:workdir] = @project_path
       subject.start
     end
     
@@ -146,8 +149,9 @@ describe Guard::Compass do
     subject { Guard::Compass.new }
     
     before :each do
+      ::Compass.reset_configuration!
       create_fixture(:no_config_file)
-      subject.start
+      subject.reporter.stub!(:failure)
     end
   
     after :each do
@@ -156,13 +160,13 @@ describe Guard::Compass do
       ::Compass.reset_configuration!
     end
     
-    describe "run_on_change" do
-      it "rebuilds all scss files in src by default" do
-        File.exists?(@project_path + "/src/screen.scss").should(be_true)
-        File.exists?(@project_path + "/stylesheets/screen.css").should be_false
-        subject.run_on_change(@project_path + "/src/screen.scss").should be_true
-        File.exists?(@project_path + "/stylesheets/screen.css").should be_true
-      end
+    it "fails to build sass" do
+      subject.reporter.should_receive(:failure).with("Cannot find a Compass configuration file, please add information to your Guardfile guard 'compass' declaration.")
+      subject.start
+      File.exists?(@project_path + "/src/screen.scss").should(be_true)
+      File.exists?(@project_path + "/stylesheets/screen.css").should be_false
+      
+      subject.run_on_change(@project_path + "/bad_src/screen.scss")
     end
   end
   
@@ -181,7 +185,7 @@ describe Guard::Compass do
       ::Compass.reset_configuration!
     end
     
-    it "rebuilds failed to build sass" do
+    it "fails to build sass" do
       File.exists?(@project_path + "/bad_src/screen.scss").should(be_true)
       File.exists?(@project_path + "/stylesheets/screen.css").should be_false
       
@@ -231,7 +235,8 @@ describe Guard::Compass do
         subject.options.should eql :workdir => "#{TMP_PATH}/compass_prj"
         subject.start
         subject.watchers.size.should(eql(2), subject.watchers.inspect)
-        subject.watchers.first.pattern.should == "^#{@project_path}/src/.*"
+        subject.watchers.first.pattern.should == "^src/.*"
+        subject.watchers.last.pattern.should == "^config.rb$"
       end
     end
     
@@ -247,7 +252,8 @@ describe Guard::Compass do
       it "should have some watchers" do
         subject.start
         subject.watchers.size.should(eql(2), subject.watchers.inspect)
-        subject.watchers.first.pattern.should == "^#{@project_path}/another_src_location/.*"
+        subject.watchers.first.pattern.should == "^another_src_location/.*"
+        subject.watchers.last.pattern.should == "^another_config_location/config.rb$"
       end
     end
   end
@@ -258,6 +264,9 @@ def create_fixture(name)
   @project_path = "#{TMP_PATH}/#{name}"
   FileUtils.cp_r "#{FIXTURES_PATH}/#{name}", TMP_PATH
   subject.options.merge!(:workdir => @project_path)
+  
+  Dir.stub!(:pwd).and_return(@project_path)
+  Pathname.stub!(:pwd).and_return(Pathname.new(@project_path))
 end
 
 def remove_fixtures
