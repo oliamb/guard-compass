@@ -1,1 +1,1 @@
-guard 'compass', :working_directory => 'test', :configuration_file => 'test_also.rb'
+guard 'compass', :project_path => 'test', :configuration_file => 'test_also.rb'
