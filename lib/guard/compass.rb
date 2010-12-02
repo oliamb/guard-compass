@@ -1,5 +1,6 @@
 require 'guard'
 require 'guard/guard'
+require 'guard/reporter'
 
 require 'compass'
 require 'compass/commands'
@@ -7,11 +8,13 @@ require 'compass/logger'
 
 module Guard
   class Compass < Guard
-    attr_reader :updater
+    attr_reader :updater, :options
+    attr_accessor :reporter
     
     def initialize(watchers = [], options = {})
       super
-      @options[:workdir] = File.expand_path(File.dirname("."))
+      @reporter = Reporter.new
+      @options[:workdir] ||= File.expand_path(File.dirname("."))
     end
     
     # Guard Interface Implementation
@@ -36,19 +39,48 @@ module Guard
     
     # Compile all the sass|scss stylesheets
     def run_all
-      @updater.execute
-      true
+      perform
     end
     
     # Compile the changed stylesheets
     def run_on_change(paths)
-      @updater.execute
-      true
+      perform
     end
     
     private
+      def perform
+        if valid_sass_path?
+          @updater.execute
+          true
+        else
+          false
+        end
+      end
+      
       def create_updater
+        if(options[:configuration_file])
+          filepath = Pathname.new(options[:configuration_file])
+          if(filepath.relative?)
+            filepath = Pathname.new([options[:workdir], options[:configuration_file]].join("/"))
+          end
+          if(filepath.exist?)
+            ::Compass.add_configuration filepath
+            options[:configuration_file] = filepath
+          else
+            reporter.failure "Compass configuration file not found: " + filepath + "\nPlease check Guard configuration."
+          end
+        end
         @updater = ::Compass::Commands::UpdateProject.new(@options[:workdir] , @options)
+        valid_sass_path?
+      end
+      
+      def valid_sass_path?
+        unless File.exists? ::Compass.configuration.sass_path
+          reporter.failure("Sass files src directory not found: #{::Compass.configuration.sass_path}\nPlease check your Compass configuration.")
+          false
+        else
+          true
+        end
       end
   end
 end
