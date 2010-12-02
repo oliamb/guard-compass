@@ -1,10 +1,10 @@
 # -*- encoding: utf-8 -*-
 $:.push File.expand_path('../lib', __FILE__)
-require 'guard/compass'
+require 'guard/compass/version'
 
 Gem::Specification.new do |s|
   s.name        = 'guard-compass'
-  s.version     = Guard::Compass::VERSION
+  s.version     = Guard::CompassVersion::VERSION
   s.platform    = Gem::Platform::RUBY
   s.authors     = ['Olivier Amblet']
   s.email       = ['olivier@amblet.net']

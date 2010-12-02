@@ -9,8 +9,6 @@ module Guard
   class Compass < Guard
     attr_reader :updater
     
-    VERSION = '0.0.6'
-    
     def initialize(watchers = [], options = {})
       super
       @options[:workdir] = File.expand_path(File.dirname("."))
