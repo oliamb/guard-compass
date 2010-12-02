@@ -22,7 +22,7 @@ module Guard
     # Compile all the sass|scss stylesheets
     def start
       create_updater
-      UI.info "Guard::Compass is watching at your stylesheets."
+      reporter.announce "Guard::Compass is watching at your stylesheets."
       true
     end
     
