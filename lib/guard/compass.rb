@@ -12,7 +12,7 @@ module Guard
   class Compass < Guard
     attr_reader :updater, :working_path
     attr_accessor :reporter
-    
+
     def initialize(watchers = [], options = {})
       super
       @reporter = Reporter.new
@@ -25,20 +25,9 @@ module Guard
       # working_path is the current Guard (and by extension Compass) working directory
 
       watchers.clear
-
+      
       config_file = (options[:configuration_file] || ::Compass.detect_configuration_file(root_path))
-
-      if(config_file.nil?)
-        reporter.failure "Cannot find a Compass configuration file, please add information to your Guardfile guard 'compass' declaration."
-        return false
-      end
-
       config_path = pathname(working_path, config_file)
-
-      unless(config_path.exist?)
-        reporter.failure "Compass configuration file not found: #{config_path}\nPlease check Guard configuration."
-        return false
-      end
       src_path = pathname(root_path, ::Compass.configuration.sass_dir)
 
       watchers.push Watcher.new(%r{^#{src_path.relative_path_from(working_path)}/.*})
@@ -50,13 +39,35 @@ module Guard
     end
 
     def valid_sass_path?
-      path = pathname(root_path, ::Compass.configuration.sass_dir)
+      if(::Compass.configuration.sass_dir.nil?)
+        reporter.failure("Sass files src directory not set.\nPlease check your Compass configuration.")
+        return false
+      end
+      path = pathname(root_path, ::Compass.configuration.sass_dir )
       unless path.exist?
         reporter.failure("Sass files src directory not found: #{path}\nPlease check your Compass configuration.")
-        false
+        return false
       else
-        true
+        return true
       end
+    end
+    
+    def valid_configuration_path?
+      config_file = (options[:configuration_file] || ::Compass.detect_configuration_file(root_path))
+
+      if(config_file.nil?)
+        reporter.failure "Cannot find a Compass configuration file, please add information to your Guardfile guard 'compass' declaration."
+        return false
+      end
+      
+      config_path = pathname(working_path, config_file)
+
+      unless(config_path.exist?)
+        reporter.failure "Compass configuration file not found: #{config_path}\nPlease check Guard configuration."
+        return false
+      end
+      
+      return true
     end
 
     # Guard Interface Implementation
@@ -94,7 +105,6 @@ module Guard
 
       # Cleanup of the given options
       def cleanup_options
-
         # Ensure configuration file make reference to an absolute path.
         if(options[:configuration_file])
           options[:configuration_file] = pathname(working_path, options[:configuration_file]).to_s
@@ -121,9 +131,13 @@ module Guard
 
       def create_updater
         cleanup_options
-        @updater = ::Compass::Commands::UpdateProject.new(working_path.to_s, options)
-        create_watchers
-        valid_sass_path?
+        if valid_configuration_path?
+          @updater = ::Compass::Commands::UpdateProject.new(working_path.to_s, options)
+          create_watchers
+          return valid_sass_path?
+        else
+          return false
+        end
       end
   end
 end

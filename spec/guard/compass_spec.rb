@@ -241,8 +241,8 @@ describe Guard::Compass do
       it "should have some watchers" do
         @guard.start
         @guard.watchers.size.should(eql(2), @guard.watchers.inspect)
-        @guard.watchers.first.pattern.should == "^src/.*"
-        @guard.watchers.last.pattern.should == "^config.rb$"
+        @guard.watchers.first.pattern.should == Regexp.new("^src/.*")
+        @guard.watchers.last.pattern.should == Regexp.new("^config.rb$")
       end
     end
     
@@ -261,8 +261,8 @@ describe Guard::Compass do
       it "should have some watchers" do
         @guard.start
         @guard.watchers.size.should(eql(2), @guard.watchers.inspect)
-        @guard.watchers.first.pattern.should == "^another_src_location/.*"
-        @guard.watchers.last.pattern.should == "^another_config_location/config.rb$"
+        @guard.watchers.first.pattern.should == Regexp.new("^another_src_location/.*")
+        @guard.watchers.last.pattern.should == Regexp.new("^another_config_location/config.rb$")
       end
     end
     
@@ -284,14 +284,12 @@ describe Guard::Compass do
         
         @guard.start
         
-        Pathname.new(@guard.options[:project_path]).realpath.to_s.should == File.expand_path("#{@project_dir}/..")
-        
         @guard.options[:project_path].should == ".."
         @guard.options[:configuration_file].should == "#{@project_path}/another_config_location/config.rb"
         
         @guard.watchers.size.should(eql(2), @guard.watchers.inspect)
-        @guard.watchers.last.pattern.should == "^another_config_location/config.rb$"
-        @guard.watchers.first.pattern.should(eql("^another_src_location/.*"), ::Compass.configuration.sass_dir)
+        @guard.watchers.last.pattern.should == Regexp.new("^another_config_location/config.rb$")
+        @guard.watchers.first.pattern.should(eql(Regexp.new("^another_src_location/.*")), ::Compass.configuration.sass_dir)
       end
     end
   end

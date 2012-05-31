@@ -1,4 +1,5 @@
 require 'spec_helper'
+require 'guard'
 require 'guard/reporter'
 
 describe Guard::Reporter do

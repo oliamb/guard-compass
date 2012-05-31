@@ -1,4 +1,5 @@
 require 'spec_helper'
+require 'guard'
 require 'guard/dsl'
 
 describe Guard::Dsl do
@@ -13,7 +14,7 @@ describe Guard::Dsl do
     Dir.pwd.should == "#{FIXTURES_PATH}/dsl/simple"
     
     ::Guard.stub!(:add_guard)
-    ::Guard.should_receive(:add_guard).with('compass', [], hash_including(:project_path, :configuration_file))
+    ::Guard.should_receive(:add_guard).with('compass', [], [], hash_including(:project_path, :configuration_file))
     subject.evaluate_guardfile
   end
 end
