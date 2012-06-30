@@ -96,7 +96,7 @@ module Guard
     end
 
     # Compile the changed stylesheets
-    def run_on_change(paths)
+    def run_on_changes(paths)
       perform
     end
 
